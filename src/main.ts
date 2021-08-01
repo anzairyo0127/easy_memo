@@ -1,67 +1,74 @@
 import os from 'os';
 import path from 'path';
-import { app, BrowserWindow, session } from 'electron';
 
-const extPath =
-  os.platform() === 'darwin'
-    ? '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.2_0'
-    : '/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.2_0';
+import { app, BrowserWindow, session, Menu, } from 'electron';
+import ElectronStore from "electron-store";
 
-/**
- * BrowserWindowインスタンスを作成する関数
- */
+import { openFileFromMenu, saveFileFromMenu } from "./menu/file";
+
+import { FileStore } from "./interfaces";
+
+const extPath = '.config/google-chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.14.0_0';
+export const title = "EZ-Memo";
+
+export let mainWindow: BrowserWindow;
+export const fileStore = new ElectronStore<FileStore>();
+
+const menu = Menu.buildFromTemplate(
+  [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Open..',
+          accelerator: 'CmdOrCtrl+O',
+          click: () => { openFileFromMenu() },
+        },
+        {
+          label: 'Save..',
+          accelerator: 'CmdOrCtrl+S',
+          click: () => { saveFileFromMenu(false) },
+        },
+        {
+          label: 'SaveAs..',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click: () => { saveFileFromMenu(true) },
+        }
+      ]
+    }
+  ]
+);
+
+Menu.setApplicationMenu(menu);
+
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  fileStore.clear();
+
+  mainWindow = new BrowserWindow({
     webPreferences: {
-      /**
-       * BrowserWindowインスタンス（レンダラープロセス）では
-       * Node.jsの機能を無効化する（electron@8以降でデフォルト）
-       */
       nodeIntegration: false,
-      /**
-       * メインプロセスとレンダラープロセスとの間で
-       * コンテキストを共有しない (electron@12以降でデフォルト)
-       */
       contextIsolation: true,
-      /**
-       * Preloadスクリプト
-       * webpack.config.js で 'node.__dirname: false' を
-       * 指定していればパスを取得できる
-       */
       preload: path.join(__dirname, 'preload.js'),
     },
+    title,
   });
 
-  // 開発時にはデベロッパーツールを開く
   if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
-  }
-
-  // レンダラープロセスをロード
+    mainWindow.webContents.openDevTools({ mode: "detach" });
+  };
   mainWindow.loadFile('dist/index.html');
 };
 
-/**
- * アプリを起動する準備が完了したら BrowserWindow インスタンスを作成し、
- * レンダラープロセス（index.htmlとそこから呼ばれるスクリプト）を
- * ロードする
- */
 app.whenReady().then(async () => {
-  /**
-   * 開発時には React Developer Tools をロードする
-   */
   if (process.env.NODE_ENV === 'development') {
-    await session.defaultSession
-      .loadExtension(path.join(os.homedir(), extPath), {
-        allowFileAccess: true,
-      })
-      .then(() => console.log('React Devtools loaded...'))
-      .catch((err) => console.log(err));
+    try {
+      await session.defaultSession.loadExtension(path.join(os.homedir(), extPath), { allowFileAccess: true, });
+      console.log('React Devtools loaded...');  
+    } catch (e) {
+      console.error(e);
+    }
   }
-
-  // BrowserWindow インスタンスを作成
   createWindow();
 });
 
-// すべてのウィンドウが閉じられたらアプリを終了する
 app.once('window-all-closed', () => app.quit());

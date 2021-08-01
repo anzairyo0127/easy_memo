@@ -1,6 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import "./style/main.scss";
 
-const App: React.FC = () => <h1>Hello Electron!</h1>;
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import Context from "./components/Context";
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(
+  <Context><App /></Context>,
+  document.getElementById("root")
+);
