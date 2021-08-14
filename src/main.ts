@@ -1,10 +1,12 @@
 import os from 'os';
 import path from 'path';
+import crypto from "crypto";
 
-import { app, BrowserWindow, session, Menu, } from 'electron';
+import { app, BrowserWindow, session, Menu, dialog, globalShortcut } from 'electron';
 import ElectronStore from "electron-store";
 
 import { openFileFromMenu, saveFileFromMenu } from "./menu/file";
+import { setGlobalShortCut } from "./shortcuts";
 
 import { FileStore } from "./interfaces";
 
@@ -33,6 +35,11 @@ const menu = Menu.buildFromTemplate(
           label: 'SaveAs..',
           accelerator: 'CmdOrCtrl+Shift+S',
           click: () => { saveFileFromMenu(true) },
+        },
+        {
+          label: 'Close',
+          accelerator: 'CmdOrCtrl+Q',
+          click: () => { app.quit() },
         }
       ]
     }
@@ -52,6 +59,24 @@ const createWindow = () => {
     },
     title,
   });
+  mainWindow.on("close", (e) => {
+    const nowText = fileStore.get("fileText");
+    const nowTextHash = crypto.createHash("sha256").update(nowText).digest("hex");
+    const fileTextAsHash = fileStore.get("fileTextAsHash");
+    if (nowTextHash !== fileTextAsHash) {
+      const choice = dialog.showMessageBoxSync(mainWindow, {
+        type: "question",
+        buttons: ["Yes", "No"],
+        message: "Are you sure want to quit?",
+      });
+      if (choice) {
+        e.preventDefault();
+      } else {
+        return;
+      }
+    }
+  });
+  setGlobalShortCut();
 
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools({ mode: "detach" });

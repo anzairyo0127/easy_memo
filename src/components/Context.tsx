@@ -9,15 +9,18 @@ type MemoDispatch = Dispatch<Action>;
 const reducer = (state: MemoState, action: Action): MemoState => {
   const c = Object.assign({}, state);
   switch (action.type) {
-    case "changeFileText":
+    case "setFileText":
       c.fileText = action.fileText;
+      return c;
+    case "setFileEncodeType":
+      c.fileEncodeType = action.fileEncodeType;
       return c;
     default:
       return state;
   }
 };
 
-const defaultState = { fileText: "" };
+const defaultState = { fileText: "", fileEncodeType: "" };
 
 const MemoContext = createContext<MemoState | undefined>(undefined)
 
@@ -38,8 +41,9 @@ export const useMemoDispatchContext = () => {
 export const Context: React.FC = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, defaultState);
   useEffect(() => {
-    fileApi.readFileData((fileText: string) => {
-      dispatch({ type: "changeFileText", fileText });
+    fileApi.readFileData((fileInfo: FileInfoType) => {
+      dispatch({ type: "setFileText", fileText: fileInfo.fileText });
+      dispatch({ type: "setFileEncodeType", fileEncodeType: fileInfo.encodeType })
     });
     fileApi.saveFileData();
   }, []);

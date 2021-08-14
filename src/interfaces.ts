@@ -2,11 +2,13 @@ export enum FILE_EVENTS {
   OPEN_DIALOG = "open_dialog",
   SAVE_DIALOG = "save_dialog",
   OPEN_FILE = "open_file",
-  SAVE_FILE = "save_file"
+  SAVE_FILE = "save_file",
+  TEXT_CHANGE = "text_change",
 };
 
 export interface FileInfoType {
   fileText: string;
+  encodeType: string;
 };
 
 interface FileApi {
@@ -23,16 +25,24 @@ declare global {
 
 export interface MemoState {
   fileText: string;
+  fileEncodeType: string;
 };
 
-type ChangeFileTextAction = {
-  type: "changeFileText",
+type SetFileTextAction = {
+  type: "setFileText",
   fileText: string;
 };
 
-export type Action = ChangeFileTextAction;
+type SetFileEncodeType = {
+  type: "setFileEncodeType",
+  fileEncodeType: string;
+}
+
+export type Action = SetFileTextAction | SetFileEncodeType;
 
 export interface FileStore{
   filePath: string;
   fileText: string;
+  fileTextAsHash: string;
+  encodeType: string;
 };

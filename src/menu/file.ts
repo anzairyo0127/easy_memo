@@ -1,6 +1,9 @@
 import fs from "fs";
+import crypto from "crypto";
 
 import { ipcMain, dialog } from "electron";
+import chardet from "chardet";
+import iconv from "iconv-lite";
 
 import { FILE_EVENTS } from "../interfaces";
 import { mainWindow, fileStore, title } from "../main";
@@ -18,10 +21,14 @@ export const openFileFromMenu = async () => {
   if (result.canceled) return;
   const filePath = result.filePaths[0];
   try {
-    const fileText = fs.readFileSync(filePath, { encoding: "utf-8" });
+    const fileTextBuffer = fs.readFileSync(filePath);
+    const encodeType =  chardet.detect(fileTextBuffer);
+    const fileText = iconv.decode(fileTextBuffer, encodeType as string);
+    fileStore.set("encodeType", encodeType as string);
     fileStore.set("fileText", fileText);
-    setFilePath(filePath);  
-    mainWindow.webContents.send(FILE_EVENTS.OPEN_DIALOG, fileText);
+    fileStore.set("fileTextAsHash", crypto.createHash("sha256").update(fileText).digest("hex"));
+    setFilePath(filePath);
+    mainWindow.webContents.send(FILE_EVENTS.OPEN_DIALOG, {fileText, encodeType});
   } catch (e) {
     console.log(e);
     dialog.showErrorBox("ファイル読み込みエラー", `ファイルの読み込みに失敗しました。対応していないファイルかもしれません。
@@ -34,8 +41,13 @@ export const saveFileFromMenu = (isSaveAs:boolean) => {
   mainWindow.webContents.send(FILE_EVENTS.SAVE_DIALOG, isSaveAs);
 };
 
-ipcMain.on(FILE_EVENTS.SAVE_FILE, async (_, fileText: string, isSaveAs:boolean) => {
+ipcMain.on(FILE_EVENTS.TEXT_CHANGE, (_, fileText) => {
   fileStore.set("fileText", fileText);
+});
+
+ipcMain.on(FILE_EVENTS.SAVE_FILE, async (_, isSaveAs:boolean) => {
+  const fileText = fileStore.get("fileText");
+  const fileEncodeType = fileStore.get("encodeType");
   let filePath = fileStore.get("filePath");
   if (isSaveAs || !filePath) {
     const result = await dialog.showSaveDialog(mainWindow, {
@@ -49,7 +61,8 @@ ipcMain.on(FILE_EVENTS.SAVE_FILE, async (_, fileText: string, isSaveAs:boolean) 
     }
   };
   try {
-    fs.writeFileSync(filePath, fileText, { encoding: "utf-8" });
+    fs.writeFileSync(filePath, iconv.encode(fileText, fileEncodeType));
+    fileStore.set("fileTextAsHash", crypto.createHash("sha256").update(fileText).digest("hex"));
     setFilePath(filePath);
   } catch(e) {
     console.log(e);
