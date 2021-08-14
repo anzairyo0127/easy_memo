@@ -67,7 +67,7 @@ const createWindow = () => {
       const choice = dialog.showMessageBoxSync(mainWindow, {
         type: "question",
         buttons: ["Yes", "No"],
-        message: "Are you sure want to quit?",
+        message: "Are you sure you want to discard changes?",
       });
       if (choice) {
         e.preventDefault();
