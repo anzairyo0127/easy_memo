@@ -1,6 +1,6 @@
 import React, { useReducer, createContext, Dispatch, useContext, useEffect } from "react";
 
-import { MemoState, Action, FileInfoType } from "../interfaces";
+import { MemoState, Action, FileInfoType } from "../../interfaces";
 
 const { fileApi } = window;
 
@@ -20,7 +20,7 @@ const reducer = (state: MemoState, action: Action): MemoState => {
   }
 };
 
-const defaultState = { fileText: "", fileEncodeType: "" };
+const defaultState = { fileText: "", fileEncodeType: "UTF-8" };
 
 const MemoContext = createContext<MemoState | undefined>(undefined)
 
@@ -50,7 +50,11 @@ export const Context: React.FC = ({ children }) => {
 
   useEffect(() => {
     fileApi.setText(state.fileText);
-  }, [state]);
+  }, [state.fileText]);
+
+  useEffect(() => {
+    fileApi.setEncodeType(state.fileEncodeType);
+  }, [state.fileEncodeType]);
 
   return (
     <MemoDispatchContext.Provider value={dispatch}>

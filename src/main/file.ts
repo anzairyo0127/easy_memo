@@ -7,25 +7,17 @@ import iconv from "iconv-lite";
 import { isBinary, isText } from "istextorbinary";
 
 import { FILE_EVENTS } from "../interfaces";
-import { mainWindow, fileStore, title } from "../main";
+import { mainWindow, title } from "./main";
+import { fileStore } from "./store";
 
 const setFilePath = (filePath: string) => {
   fileStore.set("filePath", filePath);
   mainWindow.setTitle(`${title} - ${filePath}`);
 };
 
-export const openFileFromMenu = async () => {
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ["openFile", "showHiddenFiles"],
-    filters: [
-      {name: "text", extensions: ["txt", "rtf", "text", "json", "yml", "yaml", "md", "htm", "html", "css", "scss", "sass", "js", "ts", "vue", "tsx", "csv", "xml", "asp", "rs", "py", "c", "cpp", "coffee", "cs", "go", "java", "xhtml", "jsx", "lua", "sql", "pl", "php", "scala", "vbs"]},
-      {name: "all", extensions: ["*"]}
-    ]
-  });
-  if (result.canceled) return;
-  const filePath = result.filePaths[0];
+export const openFile = (filePath: string) => {
   try {
-    if (!isText(filePath)) throw Error(`${filePath} is not text file`);
+    // if (!isText(filePath)) throw Error(`${filePath} is not text file`);
     const fileTextBuffer = fs.readFileSync(filePath);
     const encodeType = chardet.detect(fileTextBuffer) as string;
     const fileText = iconv.decode(fileTextBuffer, encodeType);
@@ -41,6 +33,19 @@ export const openFileFromMenu = async () => {
 -------message-------
 ${e}`)
   };
+};
+
+export const openFileFromMenu = async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ["openFile", "showHiddenFiles"],
+    filters: [
+      {name: "text", extensions: ["txt", "rtf", "text", "json", "yml", "yaml", "md", "htm", "html", "css", "scss", "sass", "js", "ts", "vue", "tsx", "csv", "xml", "asp", "rs", "py", "c", "cpp", "coffee", "cs", "go", "java", "xhtml", "jsx", "lua", "sql", "pl", "php", "scala", "vbs"]},
+      {name: "all", extensions: ["*"]}
+    ]
+  });
+  if (result.canceled) return;
+  const filePath = result.filePaths[0];
+  openFile(filePath);
 };
 
 export const saveFileFromMenu = (isSaveAs:boolean) => {
@@ -82,4 +87,20 @@ ipcMain.on(FILE_EVENTS.SAVE_FILE, async (_, isSaveAs:boolean) => {
 -------message-------
 ${e}`)
   };
+});
+
+ipcMain.on(FILE_EVENTS.SET_ENCODE_TYPE, (event, encodeType: string) => {
+  fileStore.set("encodeType", encodeType);
+  const fileText = fileStore.get("fileText");
+  const encodeText = iconv.decode(Buffer.from(fileText), encodeType, {});
+  fileStore.set("fileText", encodeText);
+  mainWindow.webContents.send(FILE_EVENTS.OPEN_DIALOG, {fileText: encodeText, encodeType});
+});
+
+ipcMain.handle(FILE_EVENTS.GET_ENCODE_TYPE, (event) => {
+  return fileStore.get("encodeType");
+});
+
+ipcMain.handle(FILE_EVENTS.LOAD_FILE, (event, filePath: string) => {
+  openFile(filePath);
 });

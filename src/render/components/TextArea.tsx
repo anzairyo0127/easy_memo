@@ -1,13 +1,22 @@
-import React from "react";
+import React, {CSSProperties} from "react";
 
 import { useMemoContext, useMemoDispatchContext } from "./Context";
 
 const TextArea: React.FC = () => {
+  const style: CSSProperties = {
+    // backgroundColor : "#000000",
+  };
   const state = useMemoContext();
   const dispatch = useMemoDispatchContext();
 
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     dispatch({ type: "setFileText", fileText: e.target.value });
+  };
+
+  const onDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    const file = e.dataTransfer.files[0];
+    console.log(file)
+    window.fileApi.loadFileData(file.path);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -26,7 +35,9 @@ const TextArea: React.FC = () => {
         value={state.fileText} 
         onChange={onChange} 
         onKeyDown={onKeyDown}
+        onDrop={onDrop}
         spellCheck={false} 
+        style={style}
       />
     </div>
   )
