@@ -8,7 +8,6 @@ import createMenu from "./menuBar";
 import { I18n } from '../locales/language';
 import { confirmFileChange } from "./file";
  
-const extPath = "./electron_extension";
 const indexHtml = "dist/index.html";
 
 export const title = "EZ-Memo";
@@ -45,7 +44,7 @@ const createWindow = () => {
 app.whenReady().then(async () => {
   if (process.env.NODE_ENV === 'development') {
     try {
-      await session.defaultSession.loadExtension(path.join(os.homedir(), extPath), { allowFileAccess: true, });
+      await session.defaultSession.loadExtension(path.resolve("./electron_extension"), { allowFileAccess: true, });
       console.log('React Devtools loaded...');
     } catch (e) {
       console.error(e);
