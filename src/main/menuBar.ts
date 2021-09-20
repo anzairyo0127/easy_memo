@@ -1,6 +1,6 @@
 import { app, Menu } from 'electron';
-import { openFileFromMenu, saveFileFromMenu } from "./file";
-import { I18n } from '../language';
+import { openFileFromMenu, saveFileFromMenu, createNewFile } from "./file";
+import { I18n } from '../locales/language';
 
 const createMenu = (i18n: I18n) => {
   const nameSpace = "menu_bar";
@@ -9,6 +9,11 @@ const createMenu = (i18n: I18n) => {
     return {
       label: i18n.t(`${nameSpace}.${label}.label`),
       submenu: [
+        {
+          label: i18n.t(`${nameSpace}.${label}.create_new`),
+          accelerator: 'CmdOrCtrl+N',
+          click: () => { createNewFile() },
+        },
         {
           label: i18n.t(`${nameSpace}.${label}.open`),
           accelerator: 'CmdOrCtrl+O',

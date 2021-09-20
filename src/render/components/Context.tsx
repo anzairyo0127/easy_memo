@@ -1,45 +1,13 @@
-import React, { useReducer, createContext, Dispatch, useContext, useEffect } from "react";
+import React, { useReducer, useEffect } from "react";
 
-import { MemoState, Action, FileInfoType } from "../../interfaces";
+import { defaultMemoState, memoStateReducer } from "./Contexts/MemoContext";
+import { FileInfoType } from "../../interfaces";
+import { MemoContext, MemoDispatchContext, } from "./Contexts/MemoContext";
 
-const { fileApi } = window;
-
-type MemoDispatch = Dispatch<Action>;
-
-const reducer = (state: MemoState, action: Action): MemoState => {
-  const c = Object.assign({}, state);
-  switch (action.type) {
-    case "setFileText":
-      c.fileText = action.fileText;
-      return c;
-    case "setFileEncodeType":
-      c.fileEncodeType = action.fileEncodeType;
-      return c;
-    default:
-      return state;
-  }
-};
-
-const defaultState = { fileText: "", fileEncodeType: "UTF-8" };
-
-const MemoContext = createContext<MemoState | undefined>(undefined)
-
-const MemoDispatchContext = createContext<MemoDispatch | undefined>(undefined);
-
-export const useMemoContext = () => {
-  const context = useContext(MemoContext);
-  if (!context) throw new Error(`nothing MemoContext = ${context}`);
-  return context;
-};
-
-export const useMemoDispatchContext = () => {
-  const context = useContext(MemoDispatchContext);
-  if (!context) throw new Error(`nothing MemoDispatchContext = ${context}`);
-  return context;
-};
+const { fileApi, tool } = window;
 
 export const Context: React.FC = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, defaultState);
+  const [memoState, dispatch] = useReducer(memoStateReducer, defaultMemoState);
   useEffect(() => {
     fileApi.readFileData((fileInfo: FileInfoType) => {
       dispatch({ type: "setFileText", fileText: fileInfo.fileText });
@@ -49,16 +17,16 @@ export const Context: React.FC = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    fileApi.setText(state.fileText);
-  }, [state.fileText]);
+    fileApi.setText(memoState.fileText);
+  }, [memoState.fileText]);
 
   useEffect(() => {
-    fileApi.setEncodeType(state.fileEncodeType);
-  }, [state.fileEncodeType]);
+    fileApi.setEncodeType(memoState.fileEncodeType);
+  }, [memoState.fileEncodeType]);
 
   return (
     <MemoDispatchContext.Provider value={dispatch}>
-      <MemoContext.Provider value={state}>
+      <MemoContext.Provider value={memoState}>
         {children}
       </MemoContext.Provider>
     </MemoDispatchContext.Provider>

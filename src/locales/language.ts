@@ -1,9 +1,7 @@
-import fs from "fs";
+import { dict } from "./dictionary";
 
 interface I18nProps {
   lang?: string;
-  nameSpace?: string;
-  dir?: string;
 }
 
 // https://blog.katsubemakito.net/nodejs/electron/electron-i18n
@@ -21,27 +19,22 @@ export class I18n {
       if (props.lang && I18n.SUPPURT_LANG.includes(props.lang)) {
         this._lang = props.lang;
       }
-      if (props.nameSpace) {
-        this._nameSpace = props.nameSpace;
-      }
-      if (props.dir) {
-        this._dir = props.dir;
-      };
-      if (!this.loadDictionaryFile(`${this._dir}/${this._nameSpace}/${this._lang}.json`)) {
+      if (!this.loadDictionaryFile(this._lang)) {
         throw "Can not load language file";
       }
     }
   };
 
-  loadDictionaryFile (path: string) {
+  loadDictionaryFile (lang: string) {
     try {
-      this._dict = JSON.parse(fs.readFileSync(path, "utf-8"));
-      return true;
+      this._dict = dict(lang);
+      return !!this._dict;
     } catch (e) {
       console.log(e);
       return false;
     }
   };
+
   t(key: string) {
     const keys = key.split('.');
     let value = this._dict;

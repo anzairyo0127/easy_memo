@@ -1,7 +1,5 @@
 import path from "path";
-
 import { Configuration } from "webpack";
-
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
@@ -41,7 +39,7 @@ const base: Configuration = {
         ],
       },
       {
-        test: /\.(bmp|ico|gif|jpe?g|png|svg|ttf|eot|woff?2?)$/,
+        test: /\.(bmp|ico|gif|jpe?g|png|ttf|eot|woff?2?)$/,
         type: "asset/resource",
       },
       {
@@ -50,7 +48,11 @@ const base: Configuration = {
           "html-loader",
           "ejs-plain-loader"
         ]
-      }
+      },
+      {
+        test: /\.svg$/,
+        use: ['@svgr/webpack'],
+      },
     ],
   },
   devtool: isDev ? "inline-source-map" : false,
@@ -90,4 +92,4 @@ const renderer: Configuration = {
   ],
 };
 
-export default [main, preload, renderer];
+export default [main, preload, renderer, ];

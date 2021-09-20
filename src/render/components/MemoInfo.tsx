@@ -1,10 +1,18 @@
-import React from "react";
+import { resolve } from "path";
+import React, { useEffect, useState } from "react";
 
-import { useMemoContext, useMemoDispatchContext } from "./Context";
+// import CharCount from "../svg/char_count.svg";
+// import CharCount2 from "../svg/char_count2.svg";
+
+import { useMemoContext, useMemoDispatchContext } from "./Contexts/MemoContext";
+
+const { fileApi, tool } = window;
+
+const keycodes = require("keycodes");
 
 const EncodeTypeSelector: React.FC = () => {
-  const state = useMemoContext();
-  const dispatch = useMemoDispatchContext();
+  const memoState = useMemoContext();
+  const memoDispatch = useMemoDispatchContext();
 
   const encodeTypes = [
     'UTF-8',        'UTF-16 LE',
@@ -23,13 +31,17 @@ const EncodeTypeSelector: React.FC = () => {
     'windows-1256', 'KOI8-R'
   ];
 
-  const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const onChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const fileEncodeType = e.target.value;
-    dispatch({type: "setFileEncodeType", fileEncodeType});
+    await new Promise(resolve => {
+      resolve(memoDispatch({type: "setFileEncodeType", fileEncodeType}));
+    }).then(async () => {
+      await fileApi.resetEncodeText();
+    });
   };
 
   return (
-    <select className="memo-info-encode-type-selector" onChange={onChange} defaultValue={"UTF-8"}>
+    <select className="memo-info-encode-type-selector" onChange={onChange} value={memoState.fileEncodeType}>
       {encodeTypes.map(encodeType => {
         return (<option key={`option-encodetype-${encodeType}`} value={encodeType} >{encodeType}</option>)
       })}
@@ -39,15 +51,23 @@ const EncodeTypeSelector: React.FC = () => {
 
 
 const MemoInfo: React.FC = () => {
-  const state = useMemoContext();
+  const memoState = useMemoContext();
+  const [keyHistory, setKeyHistory] = useState<string[]>([])
+  useEffect(() => {
+    if (keyHistory.length > 4) {
+      keyHistory.shift();
+    };
+    keyHistory.push(keycodes(memoState.keyEvent?.keyCode) as string)
+    setKeyHistory(keyHistory);
+  }, [memoState.keyEvent])
 
   return (
     <div className="content-foot">
       <p className="memo-info">
-        <span>Encode:{!!state.fileEncodeType ? state.fileEncodeType : "-"}</span>
+        <span>{keyHistory.join(" ")}</span>
         <EncodeTypeSelector />
-        <span>count:{state.fileText.length}</span>
-        <span>count(without white space):{state.fileText.replace(/\s/g, "").length}</span>
+        <span>{memoState.fileText.length}</span>
+        <span>{memoState.fileText.replace(/\s/g, "").length}</span>
       </p>
     </div>
   )

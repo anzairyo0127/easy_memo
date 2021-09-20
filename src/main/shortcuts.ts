@@ -1,4 +1,4 @@
-import { globalShortcut, BrowserWindow } from "electron"
+import { globalShortcut } from "electron"
 
 export const setGlobalShortCut = () => {
 };

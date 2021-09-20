@@ -4,11 +4,30 @@ import crypto from "crypto";
 import { ipcMain, dialog } from "electron";
 import chardet from "chardet";
 import iconv from "iconv-lite";
-import { isBinary, isText } from "istextorbinary";
+import { isText } from "istextorbinary";
 
 import { FILE_EVENTS } from "../interfaces";
-import { mainWindow, title } from "./main";
+import { mainWindow, title, i18n } from "./main";
 import { fileStore } from "./store";
+
+export const confirmFileChange = () => {
+  if (!fileStore.get("filePath")) return true;
+  const nowText = fileStore.get("fileText");
+  const nowTextHash = crypto.createHash("sha256").update(nowText).digest("hex");
+  const fileTextAsHash = fileStore.get("fileTextAsHash");
+  const nameSpace = "dialog";
+  const buttonLabel = "buttons";
+  const messageLabel = "messages";
+  if (nowTextHash !== fileTextAsHash) {
+    const choice = dialog.showMessageBoxSync(mainWindow, {
+      type: "question",
+      buttons: [i18n.t(`${nameSpace}.${buttonLabel}.yes`), i18n.t(`${nameSpace}.${buttonLabel}.no`)],
+      message: i18n.t(`${nameSpace}.${messageLabel}.confirm_file_change`),
+    });
+    return !choice; // yes = 0 no = 1 ややこしい
+  }
+  return true;
+};
 
 const setFilePath = (filePath: string) => {
   fileStore.set("filePath", filePath);
@@ -16,8 +35,9 @@ const setFilePath = (filePath: string) => {
 };
 
 export const openFile = (filePath: string) => {
+  if (!confirmFileChange()) return;
   try {
-    // if (!isText(filePath)) throw Error(`${filePath} is not text file`);
+    if (!isText(filePath)) throw Error(`${filePath} is not text file`);
     const fileTextBuffer = fs.readFileSync(filePath);
     const encodeType = chardet.detect(fileTextBuffer) as string;
     const fileText = iconv.decode(fileTextBuffer, encodeType);
@@ -50,6 +70,13 @@ export const openFileFromMenu = async () => {
 
 export const saveFileFromMenu = (isSaveAs:boolean) => {
   mainWindow.webContents.send(FILE_EVENTS.SAVE_DIALOG, isSaveAs);
+};
+
+export const createNewFile = () => {
+  fileStore.set("fileText", "");
+  setFilePath("");
+  const encodeType = fileStore.get("encodeType");
+  mainWindow.webContents.send(FILE_EVENTS.OPEN_DIALOG, {fileText: "", encodeType});
 };
 
 ipcMain.on(FILE_EVENTS.TEXT_CHANGE, (_, fileText) => {
@@ -89,12 +116,8 @@ ${e}`)
   };
 });
 
-ipcMain.on(FILE_EVENTS.SET_ENCODE_TYPE, (event, encodeType: string) => {
+ipcMain.handle(FILE_EVENTS.SET_ENCODE_TYPE, (event, encodeType: string) => {
   fileStore.set("encodeType", encodeType);
-  const fileText = fileStore.get("fileText");
-  const encodeText = iconv.decode(Buffer.from(fileText), encodeType, {});
-  fileStore.set("fileText", encodeText);
-  mainWindow.webContents.send(FILE_EVENTS.OPEN_DIALOG, {fileText: encodeText, encodeType});
 });
 
 ipcMain.handle(FILE_EVENTS.GET_ENCODE_TYPE, (event) => {
@@ -104,3 +127,12 @@ ipcMain.handle(FILE_EVENTS.GET_ENCODE_TYPE, (event) => {
 ipcMain.handle(FILE_EVENTS.LOAD_FILE, (event, filePath: string) => {
   openFile(filePath);
 });
+
+ipcMain.handle(FILE_EVENTS.RE_ENCODE_TEXT, () => {
+  const fileText = fileStore.get("fileText");
+  const encodeType = fileStore.get("encodeType");
+  const encodeText = iconv.decode(Buffer.from(fileText), encodeType);
+  fileStore.set("fileText", encodeText);
+  mainWindow.webContents.send(FILE_EVENTS.OPEN_DIALOG, {fileText: encodeText, encodeType});
+});
+

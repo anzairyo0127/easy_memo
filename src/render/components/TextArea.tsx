@@ -1,25 +1,25 @@
 import React, {CSSProperties} from "react";
 
-import { useMemoContext, useMemoDispatchContext } from "./Context";
+import { useMemoContext, useMemoDispatchContext } from "./Contexts/MemoContext";
 
 const TextArea: React.FC = () => {
   const style: CSSProperties = {
     // backgroundColor : "#000000",
   };
-  const state = useMemoContext();
-  const dispatch = useMemoDispatchContext();
+  const memoState = useMemoContext();
+  const memoDispatch = useMemoDispatchContext();
 
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    dispatch({ type: "setFileText", fileText: e.target.value });
+    memoDispatch({ type: "setFileText", fileText: e.target.value });
   };
 
   const onDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
     const file = e.dataTransfer.files[0];
-    console.log(file)
     window.fileApi.loadFileData(file.path);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    memoDispatch({type: "pushKey", keyEvent: e});
     switch (e.code) {
       case "Tab":
         const space = 4;
@@ -32,7 +32,7 @@ const TextArea: React.FC = () => {
   return (
     <div className="content-body">
       <textarea 
-        value={state.fileText} 
+        value={memoState.fileText} 
         onChange={onChange} 
         onKeyDown={onKeyDown}
         onDrop={onDrop}

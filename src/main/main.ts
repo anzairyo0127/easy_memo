@@ -1,37 +1,19 @@
 import os from 'os';
 import path from 'path';
-import crypto from "crypto";
 import { app, BrowserWindow, session, Menu, dialog } from 'electron';
-import settings from "electron-app-settings";
 
-import { fileStore, storeInit } from "./store";
+import { fileStore, configStore, fileStoreInit } from "./store";
 import { setGlobalShortCut } from "./shortcuts";
 import createMenu from "./menuBar";
-import { I18n } from '../language';
-
-const extPath = '.config/google-chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.14.0_0';
-const indexHtml ='dist/index.html';
+import { I18n } from '../locales/language';
+import { confirmFileChange } from "./file";
+ 
+const extPath = "./electron_extension";
+const indexHtml = "dist/index.html";
 
 export const title = "EZ-Memo";
 export let mainWindow: BrowserWindow;
-
-const onElectronClose = (e: Electron.Event) => {
-  const nowText = fileStore.get("fileText");
-  const nowTextHash = crypto.createHash("sha256").update(nowText).digest("hex");
-  const fileTextAsHash = fileStore.get("fileTextAsHash");
-  if (nowTextHash !== fileTextAsHash) {
-    const choice = dialog.showMessageBoxSync(mainWindow, {
-      type: "question",
-      buttons: ["Yes", "No"],
-      message: "Are you sure you want to discard changes?",
-    });
-    if (choice) {
-      e.preventDefault();
-    } else {
-      return;
-    }
-  }
-};
+export let i18n: I18n;
 
 const setBrowserWindow = () => {
   return new BrowserWindow({
@@ -45,10 +27,14 @@ const setBrowserWindow = () => {
 };
 
 const createWindow = () => {
-
   mainWindow = setBrowserWindow();
-
-  mainWindow.on("close", onElectronClose);
+  mainWindow.on("close", (e) => {
+    if (confirmFileChange()) {
+      return;
+    } else {
+      e.preventDefault();
+    };
+  });
 
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools({ mode: "detach" });
@@ -66,12 +52,13 @@ app.whenReady().then(async () => {
     }
   }
 
-  if (!settings.has("local")) {
-    settings.set("local", app.getLocale());
-  }
-  const i18n = new I18n({lang: settings.get("local")});
+  if (!configStore.has("local")) {
+    configStore.set("local", app.getLocale());
+  };
+
+  i18n = new I18n({lang: configStore.get("local")});
   Menu.setApplicationMenu(createMenu(i18n));
-  storeInit();
+  fileStoreInit();
   setGlobalShortCut();
   createWindow();
 });

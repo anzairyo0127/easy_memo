@@ -119,3 +119,6 @@ dist
 
 output
 sandbox
+
+electron_extension/*
+!electron_extension/.gitkeep

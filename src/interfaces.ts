@@ -1,6 +1,5 @@
-import { I18n } from "./language";
-
 export enum FILE_EVENTS {
+  CREATE_NEW = "create_new_file",
   OPEN_DIALOG = "open_dialog",
   SAVE_DIALOG = "save_dialog",
   OPEN_FILE = "open_file",
@@ -9,7 +8,14 @@ export enum FILE_EVENTS {
   TEXT_CHANGE = "text_change",
   SET_ENCODE_TYPE = "set_encode_type",
   GET_ENCODE_TYPE = "get_encode_type",
+  RE_ENCODE_TEXT = "re_encode_text",
 };
+
+export enum CONFIG_EVENTS {
+  GET = "config_get",
+  SET = "config_set",
+  HAS = "config_has",
+}
 
 export enum TOOL_EVENTS {
   GEN_UUID_FROM_MENU = "gen_uuid_from_menu",
@@ -25,27 +31,38 @@ interface FileApi {
   saveFileData: () => void;
   setText: (fileText: string) => void;
   getEncodeType: Promise<(callBack: Function) => void>;
-  setEncodeType: (encodeType: string) => void;
-  loadFileData: (filePath: string) => void,
+  setEncodeType: (encodeType: string) => Promise<void>;
+  loadFileData: (filePath: string) => Promise<void>,
+  resetEncodeText: () => Promise<void>,
 };
 
 interface ConfigApi {
   get: (key: string) => any;
   set: (key: string, value: any) => void;
   has: (key: string) => boolean;
-  i18n: I18n,
+}
+
+interface ToolApi {
+  generateUuidv4: () => string;
+}
+
+interface I18nApi {
+  t: (key: string) => string;
 }
 
 declare global {
   interface Window {
     fileApi: FileApi;
     configApi: ConfigApi;
+    tool: ToolApi;
+    i18n: I18nApi;
   }
 }
 
 export interface MemoState {
   fileText: string;
   fileEncodeType: string;
+  keyEvent: React.KeyboardEvent<HTMLTextAreaElement> | null;
 };
 
 type SetFileTextAction = {
@@ -56,13 +73,22 @@ type SetFileTextAction = {
 type SetFileEncodeType = {
   type: "setFileEncodeType",
   fileEncodeType: string;
-}
+};
 
-export type Action = SetFileTextAction | SetFileEncodeType;
+type PushKey = {
+  type: "pushKey",
+  keyEvent: React.KeyboardEvent<HTMLTextAreaElement>;
+};
 
-export interface FileStore{
+export type Action = SetFileTextAction | SetFileEncodeType | PushKey;
+
+export interface FileStore {
   filePath: string;
   fileText: string;
   fileTextAsHash: string;
   encodeType: string;
+};
+
+export interface ConfigStore {
+  local: string;
 };
