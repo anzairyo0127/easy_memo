@@ -20,7 +20,6 @@ const ja = {
     },
     "messages": {
       "confirm_file_change": "編集中の内容を破棄してもよろしいですか？",
-      ""
     }
   }
 };
