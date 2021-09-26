@@ -1,5 +1,6 @@
 import { app, Menu } from 'electron';
 import { openFileFromMenu, saveFileFromMenu, createNewFile } from "./file";
+import { insertUuid } from "./tool";
 import { I18n } from '../locales/language';
 
 const createMenu = (i18n: I18n) => {
@@ -45,7 +46,7 @@ const createMenu = (i18n: I18n) => {
       submenu: [
         {
           label: i18n.t(`${nameSpace}.${label}.gen_uuid`),
-          click: () => { console.log("aaaaaaa") },
+          click: () => { insertUuid() },
         }
       ]
     }

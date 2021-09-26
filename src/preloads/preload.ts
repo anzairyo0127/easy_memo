@@ -3,7 +3,7 @@ import uuid from "uuid";
 import crypto from "crypto";
 import { I18n } from "../locales/language";
 
-import { FILE_EVENTS, CONFIG_EVENTS, FileInfoType } from "../interfaces";
+import { FILE_EVENTS, CONFIG_EVENTS, FileInfoType, TOOL_EVENTS } from "../interfaces";
 
 (async () => {
   const local = await ipcRenderer.invoke(CONFIG_EVENTS.GET, "local");
@@ -44,7 +44,7 @@ import { FILE_EVENTS, CONFIG_EVENTS, FileInfoType } from "../interfaces";
   
   contextBridge.exposeInMainWorld(
     "tool", {
-      generateUuidv4: () => uuid.v4(),
+      onToolInsertText: (callBack: Function) => ipcRenderer.on(TOOL_EVENTS.INSET_TEXT, (_, text: string) => callBack(text)),
       toUpperCase: (str: string) => str.toUpperCase(),
       toLowerCase: (str: string) => str.toLowerCase(),
       toHash256: (str: string) => crypto.createHash("sha256").update(str).digest('hex'),

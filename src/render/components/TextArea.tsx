@@ -1,6 +1,8 @@
-import React, {CSSProperties} from "react";
+import React, {CSSProperties ,useEffect} from "react";
 
 import { useMemoContext, useMemoDispatchContext } from "./Contexts/MemoContext";
+
+const { tool, fileApi } = window;
 
 const TextArea: React.FC = () => {
   const style: CSSProperties = {
@@ -9,13 +11,17 @@ const TextArea: React.FC = () => {
   const memoState = useMemoContext();
   const memoDispatch = useMemoDispatchContext();
 
+  useEffect(() => {
+    tool.onToolInsertText((text: string) => { document.execCommand("insertText", false, text); });
+  }, []);
+
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     memoDispatch({ type: "setFileText", fileText: e.target.value });
   };
 
   const onDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
     const file = e.dataTransfer.files[0];
-    window.fileApi.loadFileData(file.path);
+    fileApi.loadFileData(file.path);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

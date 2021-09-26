@@ -18,7 +18,7 @@ export enum CONFIG_EVENTS {
 }
 
 export enum TOOL_EVENTS {
-  GEN_UUID_FROM_MENU = "gen_uuid_from_menu",
+  INSET_TEXT = "insert_text",
 }
 
 export interface FileInfoType {
@@ -43,7 +43,7 @@ interface ConfigApi {
 }
 
 interface ToolApi {
-  generateUuidv4: () => string;
+  onToolInsertText: (callback: Function) => void;
 }
 
 interface I18nApi {
