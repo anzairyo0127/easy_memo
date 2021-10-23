@@ -1,9 +1,10 @@
-# QuickStart
+# Development build
 ```
 # npm run start
 ```
-open memo app....
 
 # Build Application
 
-WORK IN PROGRESS
+```
+# npm run create
+```
