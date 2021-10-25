@@ -1,8 +1,7 @@
-import os from 'os';
 import path from 'path';
 import { app, BrowserWindow, session, Menu, dialog } from 'electron';
 
-import { fileStore, configStore, fileStoreInit } from "./store";
+import { configStore, fileStoreInit } from "./store";
 import { setGlobalShortCut } from "./shortcuts";
 import createMenu from "./menuBar";
 import { I18n } from '../locales/language';
