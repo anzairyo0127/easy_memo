@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  elec_builder:
+    image: electronuserland/builder@sha256:b44981dcdc60192ba3f898042fc2a21f2bd7bb626dc66382e7dcdb2e3add38af
+    command: npm run build:app -- --win
+    volumes:
+      - .:/project
+      - ~/.cache/electron:/root/.cache/electron
+      - ~/.cache/electron-builder:/root/.cache/electron-builder
+    environment:
+      ELECTRON_CACHE: "/root/.cache/electron"
+      ELECTRON_BUILDER_CACHE: "/root/.cache/electron-builder"
