@@ -12,6 +12,8 @@ export enum FILE_EVENTS {
 };
 
 export enum CONFIG_EVENTS {
+  WINDOW_HIDE = "config_hide",
+  WINDOW_SHOW = "config_show",
   GET = "config_get",
   SET = "config_set",
   HAS = "config_has",
@@ -37,9 +39,11 @@ interface FileApi {
 };
 
 interface ConfigApi {
-  get: (key: string) => any;
-  set: (key: string, value: any) => void;
-  has: (key: string) => boolean;
+  get: (key: string) => Promise<any>;
+  set: (key: string, value: any) => Promise<void>;
+  has: (key: string) => Promise<boolean>;
+  windowShow: () => void;
+  windowHide: () => void;
 }
 
 interface ToolApi {
@@ -91,4 +95,6 @@ export interface FileStore {
 
 export interface ConfigStore {
   local: string;
+  tab_char: string;
+  tab_num: number;
 };
