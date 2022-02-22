@@ -8,6 +8,13 @@ import Main from "./Main";
 import Language from "./Language";
 import Text from "./Text";
 
+const StyledLink = styled(Link)`
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: black;
+`;
+
 const { configApi, i18n } = window;
 
 const ConfigApp: React.FC = () => {
@@ -30,26 +37,32 @@ const ConfigApp: React.FC = () => {
   ];
 
   const ConfigBody = styled.div`
+    display: flex;
   `;
 
   const ConfigNav = styled.nav`
-    float: left;
-    width: 24%;
+    min-width: 10em;
+    max-width: 18em;
+    overflow-wrap: break-word;
+    border-right: 1px solid #000000;
   `;
 
   const ConfigContent = styled.div`
-    float: left;
-    width: 76%;
+    width: 100%;
   `;
 
-  const ConfigNavButton = styled.button`
+  const ConfigNavButton = styled.div`
+    &:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
   `;
 
   return (
     <ConfigBody>
       <HashRouter>
         <ConfigNav>
-          {menus.map(menu => <p key={`p_${menu.key}`}><Link key={`link_${menu.key}`} to={`/${menu.link}`}>{i18n.t(`config.config_menu.${menu.key}.label`)}</Link></p>)}
+          {menus.map(menu => <p key={`p_${menu.key}`}><StyledLink key={`link_${menu.key}`} to={`/${menu.link}`}>{i18n.t(`config.config_menu.${menu.key}.label`)}</StyledLink></p>)}
           <ConfigNavButton onClick={configApi.windowHide}>
             {i18n.t("config.config_menu.close.label")}
           </ConfigNavButton>

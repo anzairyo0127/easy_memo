@@ -69,13 +69,11 @@ app.whenReady().then(async () => {
     }
   }
 
-/* 
   if (!configStore.has("local")) {
     configStore.set("local", app.getLocale());
   };
-*/
 
-  initConfig(configStore);
+  //initConfig(configStore);
   configWindow = setConfigWindow(mainWindow);
   configWindow.loadFile(configHtml);
   setConfig(configWindow);

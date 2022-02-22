@@ -20,7 +20,7 @@ const LanguageSetting: React.FC = () => {
   return (
     <>
       <p>Language Setup. lang: {local}</p>
-      <p>Todo: 適応には再起動が必要ですを英語で書く</p>
+      <p>Reboot is required for adaptation.</p>
       <label htmlFor="language-ja"><input type="radio" onChange={onChange} value="ja" checked={local === "ja"} id="language-ja" />日本語</label>
       <label htmlFor="language-en" ><input type="radio" onChange={onChange} value="en" checked={local === "en"} id="language-en" />English</label>
     </>

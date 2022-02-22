@@ -58,7 +58,7 @@
     "ejs-electron": "^2.1.1",
     "ejs-plain-loader": "^1.4.1",
     "electron-app-settings": "^1.2.2",
-    "electron-store": "^8.0.0",
+    "electron-store": "^8.0.1",
     "encodeurl": "^1.0.2",
     "end-of-stream": "^1.4.4",
     "env-paths": "^2.2.1",
@@ -153,8 +153,8 @@
   },
   "keywords": [],
   "author": {
-    "name": "anzai ryo",
-    "email": "can.dont.zu@icloud.com"
+    "name": "kuzunoha",
+    "email": "kuzunoha_ryo@outlook.jp"
   },
   "license": "ISC",
   "description": "簡素なメモ帳アプリです",

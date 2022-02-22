@@ -45,6 +45,9 @@ const ja = {
         "description": ""
       }
     },
+    "main_page": {
+      "main": "サイドメニューから設定を開いてください。",
+    },
   }
 };
 
@@ -94,7 +97,10 @@ const en = {
         "label": "Close",
         "description": "",
       }
-    }
+    },
+    "main_page": {
+      "main": "Open Settings from the side menu.",
+    },
   }
 };
 
