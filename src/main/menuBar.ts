@@ -2,6 +2,7 @@ import { app, Menu } from 'electron';
 import { openFileFromMenu, saveFileFromMenu, createNewFile } from "./file";
 import { insertUuid } from "./tool";
 import { I18n } from '../locales/language';
+import { configWindowShow } from "./config";
 
 const createMenu = (i18n: I18n) => {
   const nameSpace = "menu_bar";
@@ -52,10 +53,24 @@ const createMenu = (i18n: I18n) => {
     }
   };
 
+  const optionMenu = () => {
+    const label = "option_menu";
+    return {
+      label: i18n.t(`${nameSpace}.${label}.label`),
+      submenu: [
+        {
+          label: i18n.t(`${nameSpace}.${label}.config`),
+          click: () => { configWindowShow() },
+        }
+      ]
+    }
+  };
+
   return Menu.buildFromTemplate(
     [
       fileMenu(),
       toolMenu(),
+      optionMenu(),
     ]
   );
 };

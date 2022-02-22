@@ -2,7 +2,7 @@ import React, {CSSProperties ,useEffect} from "react";
 
 import { useMemoContext, useMemoDispatchContext } from "./Contexts/MemoContext";
 
-const { tool, fileApi } = window;
+const { tool, fileApi, configApi } = window;
 
 const TextArea: React.FC = () => {
   const style: CSSProperties = {
@@ -24,12 +24,14 @@ const TextArea: React.FC = () => {
     fileApi.loadFileData(file.path);
   };
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const onKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     memoDispatch({type: "pushKey", keyEvent: e});
     switch (e.code) {
       case "Tab":
-        const space = 4;
-        document.execCommand("insertText", false, " ".repeat(space));
+        e.preventDefault();
+        const tabChar = await configApi.get("tab_char") === "tab" ? "\t" : " ";
+        document.execCommand("insertText", false, (tabChar).repeat(await configApi.get("tab_num")));
+        return;
       default:
         return;
     };

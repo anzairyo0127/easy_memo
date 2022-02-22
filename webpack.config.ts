@@ -92,4 +92,21 @@ const renderer: Configuration = {
   ],
 };
 
-export default [main, preload, renderer, ];
+const config: Configuration = {
+  ...base,
+  target: "web",
+  entry: {
+    config: "./src/config/configRender.tsx",
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: "./src/config/view/config.ejs",
+      minify: !isDev,
+      inject: "body",
+      filename: "config.html",
+      scriptLoading: "blocking",
+    }),
+  ],
+};
+
+export default [main, preload, renderer, config, ];

@@ -39,6 +39,12 @@ import { FILE_EVENTS, CONFIG_EVENTS, FileInfoType, TOOL_EVENTS } from "../interf
       get: async (key: string) => await ipcRenderer.invoke(CONFIG_EVENTS.GET, key),
       set: async (key: string, value: any) => await ipcRenderer.invoke(CONFIG_EVENTS.SET, key, value),
       has: async (key: string) => await ipcRenderer.invoke(CONFIG_EVENTS.HAS, key),
+      windowShow: async () => {
+        await ipcRenderer.invoke(CONFIG_EVENTS.WINDOW_SHOW);
+      },
+      windowHide: async () => {
+        await ipcRenderer.invoke(CONFIG_EVENTS.WINDOW_HIDE);
+      },
     }
   );
   

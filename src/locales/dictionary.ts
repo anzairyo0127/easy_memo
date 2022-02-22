@@ -11,7 +11,11 @@ const ja = {
     "tool_menu": {
       "label": "ツール",
       "gen_uuid": "UUID挿入(ver.4)"
-    }
+    },
+    "option_menu": {
+      "label": "オプション",
+      "config": "コンフィグ",
+    },
   },
   "dialog": {
     "buttons": {
@@ -21,6 +25,29 @@ const ja = {
     "messages": {
       "confirm_file_change": "編集中の内容を破棄してもよろしいですか？",
     }
+  },
+  "config": {
+    "config_menu": {
+      "top": {
+        "label": "トップ",
+        "description": ""
+      },
+      "language": {
+        "label": "Language",
+        "description": ""
+      },
+      "text": {
+        "label": "テキスト",
+        "description": ""
+      },
+      "close": {
+        "label": "閉じる",
+        "description": ""
+      }
+    },
+    "main_page": {
+      "main": "サイドメニューから設定を開いてください。",
+    },
   }
 };
 
@@ -37,7 +64,11 @@ const en = {
     "tool_menu": {
       "label": "Tool",
       "gen_uuid": "InsertUUID(ver.4)"
-    }
+    },
+    "option_menu": {
+      "label": "Option",
+      "config": "Config",
+    },
   },
   "dialog": {
     "buttons": {
@@ -47,6 +78,29 @@ const en = {
     "messages": {
       "confirm_file_change": "Are you sure you want to discard changes?"
     }
+  },
+  "config": {
+    "config_menu": {
+      "top": {
+        "label": "Top",
+        "description": "",
+      },
+      "language": {
+        "label": "Language",
+        "description": "",
+      },
+      "text": {
+        "label": "Text",
+        "description": "",
+      },
+      "close": {
+        "label": "Close",
+        "description": "",
+      }
+    },
+    "main_page": {
+      "main": "Open Settings from the side menu.",
+    },
   }
 };
 
